@@ -1,0 +1,25 @@
+name: Notify Lark
+
+on: 
+  push:
+    branches: 
+      - main  # Hoặc branch bạn muốn theo dõi
+  issues:
+    types: [opened, edited, closed]
+  pull_request:
+    types: [opened, edited, closed, reopened]
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to Lark
+        env:
+          LARK_WEBHOOK: ${{ secrets.LARK_WEBHOOK }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "msg_type": "text",
+            "content": {
+              "text": "New event in repository: ${{ github.event_name }}\nAction: ${{ github.event.action }}\nPR title: ${{ github.event.pull_request.title }}\nBy: ${{ github.actor }}"
+            }
+          }' $LARK_WEBHOOK
